@@ -1,0 +1,12 @@
+{
+  "name": "@hq-to-video/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src --max-warnings 0",
+    "test": "tsc && node --test dist/index.test.js"
+  }
+}

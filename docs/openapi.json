@@ -2,7 +2,10 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Heroic Vision API",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "license": {
+      "name": "UNLICENSED"
+    }
   },
   "components": {
     "schemas": {}
@@ -36,17 +39,1757 @@
           }
         }
       }
+    },
+    "/api/projects": {
+      "post": {
+        "summary": "Create project with PDF upload",
+        "tags": [
+          "Projects"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "title",
+                  "startPage",
+                  "endPage",
+                  "videoStyle",
+                  "narrationStyle"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "contentEncoding": "binary",
+                    "description": "Comic book PDF file"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "startPage": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "endPage": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "videoStyle": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "narrationStyle": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "creativeBrief": {
+                    "type": "string"
+                  },
+                  "atmosphere": {
+                    "type": "object",
+                    "properties": {
+                      "rainSfx": {
+                        "type": "boolean"
+                      },
+                      "streetNoise": {
+                        "type": "boolean"
+                      },
+                      "orchestralScore": {
+                        "type": "boolean"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "pdfUrl": {
+                      "type": "string"
+                    },
+                    "startPage": {
+                      "type": "integer"
+                    },
+                    "endPage": {
+                      "type": "integer"
+                    },
+                    "videoStyle": {
+                      "type": "string"
+                    },
+                    "narrationStyle": {
+                      "type": "string"
+                    },
+                    "creativeBrief": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "atmosphere": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "rainSfx": {
+                              "type": "boolean"
+                            },
+                            "streetNoise": {
+                              "type": "boolean"
+                            },
+                            "orchestralScore": {
+                              "type": "boolean"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "PROCESSING",
+                        "COMPLETED",
+                        "CANCELLED"
+                      ]
+                    },
+                    "errorMessage": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "videoUrl": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "duration": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "format": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "metadata": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "additionalProperties": {}
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "pdfUrl",
+                    "startPage",
+                    "endPage",
+                    "videoStyle",
+                    "narrationStyle",
+                    "creativeBrief",
+                    "atmosphere",
+                    "status",
+                    "errorMessage",
+                    "videoUrl",
+                    "duration",
+                    "format",
+                    "metadata",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List all projects with processing status",
+        "tags": [
+          "Projects"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "pdfUrl": {
+                        "type": "string"
+                      },
+                      "startPage": {
+                        "type": "integer"
+                      },
+                      "endPage": {
+                        "type": "integer"
+                      },
+                      "videoStyle": {
+                        "type": "string"
+                      },
+                      "narrationStyle": {
+                        "type": "string"
+                      },
+                      "creativeBrief": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "atmosphere": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "rainSfx": {
+                                "type": "boolean"
+                              },
+                              "streetNoise": {
+                                "type": "boolean"
+                              },
+                              "orchestralScore": {
+                                "type": "boolean"
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "PROCESSING",
+                          "COMPLETED",
+                          "CANCELLED"
+                        ]
+                      },
+                      "errorMessage": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "videoUrl": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "duration": {
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "format": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "metadata": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": {}
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "processingJob": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "projectId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "currentStep": {
+                            "type": "string",
+                            "enum": [
+                              "pdf_extraction",
+                              "vision_analysis",
+                              "script_gen",
+                              "tts",
+                              "render"
+                            ]
+                          },
+                          "progress": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "stepLabel": {
+                            "type": "string"
+                          },
+                          "startedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "completedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "errorDetails": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          },
+                          "attempts": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "projectId",
+                          "currentStep",
+                          "progress",
+                          "stepLabel",
+                          "startedAt",
+                          "completedAt",
+                          "errorDetails",
+                          "attempts"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "title",
+                      "pdfUrl",
+                      "startPage",
+                      "endPage",
+                      "videoStyle",
+                      "narrationStyle",
+                      "creativeBrief",
+                      "atmosphere",
+                      "status",
+                      "errorMessage",
+                      "videoUrl",
+                      "duration",
+                      "format",
+                      "metadata",
+                      "createdAt",
+                      "updatedAt",
+                      "processingJob"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{id}": {
+      "get": {
+        "summary": "Get project details by id",
+        "tags": [
+          "Projects"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "pdfUrl": {
+                      "type": "string"
+                    },
+                    "startPage": {
+                      "type": "integer"
+                    },
+                    "endPage": {
+                      "type": "integer"
+                    },
+                    "videoStyle": {
+                      "type": "string"
+                    },
+                    "narrationStyle": {
+                      "type": "string"
+                    },
+                    "creativeBrief": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "atmosphere": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "rainSfx": {
+                              "type": "boolean"
+                            },
+                            "streetNoise": {
+                              "type": "boolean"
+                            },
+                            "orchestralScore": {
+                              "type": "boolean"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "PROCESSING",
+                        "COMPLETED",
+                        "CANCELLED"
+                      ]
+                    },
+                    "errorMessage": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "videoUrl": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "duration": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "format": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "metadata": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "additionalProperties": {}
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "processingJob": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "projectId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "currentStep": {
+                          "type": "string",
+                          "enum": [
+                            "pdf_extraction",
+                            "vision_analysis",
+                            "script_gen",
+                            "tts",
+                            "render"
+                          ]
+                        },
+                        "progress": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 100
+                        },
+                        "stepLabel": {
+                          "type": "string"
+                        },
+                        "startedAt": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "completedAt": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "errorDetails": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "attempts": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "projectId",
+                        "currentStep",
+                        "progress",
+                        "stepLabel",
+                        "startedAt",
+                        "completedAt",
+                        "errorDetails",
+                        "attempts"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "pdfUrl",
+                    "startPage",
+                    "endPage",
+                    "videoStyle",
+                    "narrationStyle",
+                    "creativeBrief",
+                    "atmosphere",
+                    "status",
+                    "errorMessage",
+                    "videoUrl",
+                    "duration",
+                    "format",
+                    "metadata",
+                    "createdAt",
+                    "updatedAt",
+                    "processingJob"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{id}/video": {
+      "get": {
+        "summary": "Stream or download generated project video",
+        "tags": [
+          "Projects"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MP4 video stream",
+            "content": {
+              "video/mp4": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "MP4 video stream"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "video/mp4": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "video/mp4": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "video/mp4": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Default Response",
+            "content": {
+              "video/mp4": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{id}/retry": {
+      "post": {
+        "summary": "Retry failed processing for a project",
+        "tags": [
+          "Projects"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "pdfUrl": {
+                      "type": "string"
+                    },
+                    "startPage": {
+                      "type": "integer"
+                    },
+                    "endPage": {
+                      "type": "integer"
+                    },
+                    "videoStyle": {
+                      "type": "string"
+                    },
+                    "narrationStyle": {
+                      "type": "string"
+                    },
+                    "creativeBrief": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "atmosphere": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "rainSfx": {
+                              "type": "boolean"
+                            },
+                            "streetNoise": {
+                              "type": "boolean"
+                            },
+                            "orchestralScore": {
+                              "type": "boolean"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "PROCESSING",
+                        "COMPLETED",
+                        "CANCELLED"
+                      ]
+                    },
+                    "errorMessage": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "videoUrl": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "duration": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "format": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "metadata": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "additionalProperties": {}
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "processingJob": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "projectId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "currentStep": {
+                          "type": "string",
+                          "enum": [
+                            "pdf_extraction",
+                            "vision_analysis",
+                            "script_gen",
+                            "tts",
+                            "render"
+                          ]
+                        },
+                        "progress": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 100
+                        },
+                        "stepLabel": {
+                          "type": "string"
+                        },
+                        "startedAt": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "completedAt": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "errorDetails": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "attempts": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "projectId",
+                        "currentStep",
+                        "progress",
+                        "stepLabel",
+                        "startedAt",
+                        "completedAt",
+                        "errorDetails",
+                        "attempts"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "pdfUrl",
+                    "startPage",
+                    "endPage",
+                    "videoStyle",
+                    "narrationStyle",
+                    "creativeBrief",
+                    "atmosphere",
+                    "status",
+                    "errorMessage",
+                    "videoUrl",
+                    "duration",
+                    "format",
+                    "metadata",
+                    "createdAt",
+                    "updatedAt",
+                    "processingJob"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{id}/publish": {
+      "post": {
+        "summary": "Start TikTok publish flow for completed video",
+        "tags": [
+          "Projects"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tikTokUrl": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "required": [
+                    "tikTokUrl"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/queue": {
+      "get": {
+        "summary": "Get processing queue status and items",
+        "tags": [
+          "Queue"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "activeTasks": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "completedToday": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "projectId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "thumbnailUrl": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "format": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          },
+                          "durationSeconds": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "WAITING",
+                              "PROCESSING",
+                              "COMPLETED",
+                              "CANCELLED"
+                            ]
+                          },
+                          "progress": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 100
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "stepLabel": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          },
+                          "queuePosition": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "failureReason": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "projectId",
+                          "thumbnailUrl",
+                          "title",
+                          "format",
+                          "durationSeconds",
+                          "status",
+                          "progress",
+                          "stepLabel",
+                          "queuePosition",
+                          "failureReason"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "activeTasks",
+                    "completedToday",
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dashboard/metrics": {
+      "get": {
+        "summary": "Get dashboard aggregate metrics",
+        "tags": [
+          "Dashboard"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "totalVideosGenerated": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "activeJobs": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "conversionRate": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "completedToday": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "totalVideosGenerated",
+                    "activeJobs",
+                    "conversionRate",
+                    "completedToday"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
+  "servers": [
+    {
+      "url": "http://localhost:3001",
+      "description": "Local development"
+    }
+  ],
+  "security": [],
   "tags": [
     {
-      "name": "Projects"
+      "name": "Health",
+      "description": "Service health checks"
     },
     {
-      "name": "Queue"
+      "name": "Projects",
+      "description": "Project management and video pipeline"
     },
     {
-      "name": "Dashboard"
+      "name": "Queue",
+      "description": "Processing queue status"
+    },
+    {
+      "name": "Dashboard",
+      "description": "Dashboard aggregate metrics"
     }
   ]
 }

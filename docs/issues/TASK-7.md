@@ -72,15 +72,12 @@ apps/backend/src/
     "id": "uuid",
     "title": "Batman #1 Recap",
     "status": "COMPLETED",
-    "videoStyle": "9:16 Cinematic HDR",
-    "narrationStyle": "Classic Noir Monologue",
+    "formatSize": "VERTICAL",
     "duration": 24,
-    "format": "9:16 / 4K",
     "createdAt": "2026-03-29T00:00:00Z",
     "processingJob": {
-      "currentStep": "render",
-      "progress": 100,
-      "stepLabel": "Completed"
+      "currentStep": "RENDER",
+      "progress": 100
     }
   }
 ]
@@ -88,7 +85,7 @@ apps/backend/src/
 
 ### Response GET /api/projects/:id
 
-Mesmo schema acima, com campos adicionais: `pdfUrl`, `creativeBrief`, `atmosphere`, `metadata` (scenes breakdown), `errorMessage`.
+Mesmo schema acima, com campos adicionais: `pdfUrl`, `creativeBrief`, `errorMessage`.
 
 ### Tratamento de Erros
 

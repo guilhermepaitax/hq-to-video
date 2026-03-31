@@ -26,7 +26,6 @@ Implementar o **Stage 4** do pipeline de IA conforme seção 3.5 do PRD: convers
     export type Options = {
       voice: string
       mood: string
-      narrationStyle: string
       format: 'mp3' | 'wav'
     }
     export type Result = {
@@ -74,7 +73,6 @@ Implementar o **Stage 4** do pipeline de IA conforme seção 3.5 do PRD: convers
 interface TTSOptions {
   voice: string           // ID da voz no ElevenLabs
   mood: string            // "dark-heroic", "suspense", "epic", etc.
-  narrationStyle: string  // "Classic Noir Monologue", etc.
   format: 'mp3' | 'wav'
 }
 

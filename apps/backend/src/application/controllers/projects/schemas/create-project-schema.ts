@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
-import { atmosphereConfigSchema } from './shared/atmosphere-config-schema';
 import { projectJsonSchema } from './shared/project-schema';
 
 /** Logical multipart form fields (PDF binary documented separately for OpenAPI). */
@@ -9,10 +8,7 @@ export const createProjectFormFieldsSchema = z.object({
   title: z.string().min(1),
   startPage: z.number().int().min(1),
   endPage: z.number().int().min(1),
-  videoStyle: z.string().min(1),
-  narrationStyle: z.string().min(1),
   creativeBrief: z.string().optional(),
-  atmosphere: atmosphereConfigSchema.optional(),
 });
 
 const formFieldsJson = zodToJsonSchema(createProjectFormFieldsSchema, {
@@ -24,7 +20,8 @@ const formFieldsJson = zodToJsonSchema(createProjectFormFieldsSchema, {
 };
 
 const formProperties =
-  formFieldsJson.properties !== undefined && typeof formFieldsJson.properties === 'object'
+  formFieldsJson.properties !== undefined &&
+  typeof formFieldsJson.properties === 'object'
     ? formFieldsJson.properties
     : {};
 

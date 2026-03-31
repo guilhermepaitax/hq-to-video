@@ -67,15 +67,12 @@ Content creators who want to produce short-form video content (TikTok / Reels) f
 
 #### US-02: Configure Video Generation
 
-> As a content creator, I want to specify the page range, narration style, and creative direction so that the generated video matches my vision.
+> As a content creator, I want to specify the page range and creative direction so that the generated video matches my vision.
 
 **Acceptance Criteria:**
 
 - User can set a start page and end page to define which panels to process.
-- User can select a video style (e.g., "9:16 Cinematic HDR").
-- User can select a narration style (e.g., "Classic Noir Monologue").
 - User can provide a creative brief describing pacing, mood, and specific scenes to highlight.
-- User can toggle atmosphere enhancements (Rain SFX, Street Noise, Orchestral Score).
 - System displays an estimated build time before generation begins.
 
 #### US-03: Generate Video
@@ -107,7 +104,7 @@ Content creators who want to produce short-form video content (TikTok / Reels) f
 **Acceptance Criteria:**
 
 - Video player renders the generated video with playback controls (play/pause, seek, skip forward/backward).
-- Video metadata is displayed: Format (e.g., "9:16 / 4K"), Duration, Style, BPM.
+- Video metadata is displayed: Format Size (e.g., "Vertical 9:16"), Duration.
 - "Download MP4" button downloads the video file to the user's device.
 - "Export to TikTok" button initiates a publish flow to TikTok.
 - A "Scene Breakdown" section lists each scene with a thumbnail and timestamp range.
@@ -142,15 +139,15 @@ Content creators who want to produce short-form video content (TikTok / Reels) f
 
 #### Screen 2: New Video Project
 
-| Element                | Description                                                                                                                                                                                |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Sidebar Navigation     | Same as Dashboard                                                                                                                                                                          |
-| Page Header            | Title "New Video Project", subtitle describing the workflow                                                                                                                                |
-| PDF Upload Zone        | Drag-and-drop area with icon, "Browse Files" button, max 150MB label                                                                                                                       |
-| Configuration Panel    | Video Style dropdown, Narration Style dropdown, Start Page / End Page number inputs, Creative Brief textarea, Atmosphere Enhancement checkboxes (Rain SFX, Street Noise, Orchestral Score) |
-| Project Preview        | Thumbnail preview of the uploaded PDF                                                                                                                                                      |
-| Generate Button        | "Generate Video" CTA (coral/red) with estimated build time display                                                                                                                         |
-| Feature Strip (footer) | Three feature badges: Lossless Conversion, Smart Pan & Zoom, Creative IP Protection                                                                                                        |
+| Element                | Description                                                                              |
+| ---------------------- | ---------------------------------------------------------------------------------------- |
+| Sidebar Navigation     | Same as Dashboard                                                                        |
+| Page Header            | Title "New Video Project", subtitle describing the workflow                              |
+| PDF Upload Zone        | Drag-and-drop area with icon, "Browse Files" button, max 150MB label                    |
+| Configuration Panel    | Start Page / End Page number inputs, Creative Brief textarea                             |
+| Project Preview        | Thumbnail preview of the uploaded PDF                                                    |
+| Generate Button        | "Generate Video" CTA (coral/red) with estimated build time display                      |
+| Feature Strip (footer) | Three feature badges: Lossless Conversion, Smart Pan & Zoom, Creative IP Protection      |
 
 #### Screen 3: Video Viewer
 
@@ -159,7 +156,7 @@ Content creators who want to produce short-form video content (TikTok / Reels) f
 | Sidebar Navigation | Same as Dashboard                                                              |
 | Video Player       | Full video player with narration text overlay, seek bar, playback controls     |
 | Video Title        | Project name with episode number and "AI-Generated Comic Adaptation" label     |
-| Metadata Grid      | 2x2 grid: Format, Duration, Style, BPM                                         |
+| Metadata Grid      | 2x2 grid: Format Size, Duration                                         |
 | Action Buttons     | "Download MP4" (coral/red), "Export to TikTok" (outlined)                      |
 | Edit Instructions  | Link to modify creative brief and re-generate                                  |
 | Scene Breakdown    | List of scenes with thumbnail and timestamp range                              |
@@ -267,7 +264,7 @@ Final Video (MP4)
 
 | Requirement         | Specification                                            |
 | ------------------- | -------------------------------------------------------- |
-| Input               | Array of panel analyses, creative brief, narration style |
+| Input               | Array of panel analyses, creative brief                  |
 | Output              | Timestamped narration script with image references       |
 | Script duration     | 15-60 seconds (optimized for TikTok/Reels)               |
 | Narrative structure | Hook (0-3s), Rising action, Climax, Cliffhanger/CTA      |
@@ -308,7 +305,7 @@ Final Video (MP4)
 
 | Requirement     | Specification                                            |
 | --------------- | -------------------------------------------------------- |
-| Input           | Narration text per scene, narration style, mood          |
+| Input           | Narration text per scene, mood                           |
 | Output          | Audio files (MP3/WAV) per scene + combined master audio  |
 | Voice quality   | Human-like with emotional intonation matching scene mood |
 | Latency         | <= 3 seconds per scene                                   |
@@ -646,10 +643,7 @@ interface JobPayload {
     pdfUrl: string
     startPage: number
     endPage: number
-    videoStyle: string
-    narrationStyle: string
     creativeBrief?: string
-    atmosphere?: AtmosphereConfig
   }
 }
 
@@ -702,25 +696,20 @@ Project
 ├── pdfUrl          String (file storage path)
 ├── startPage       Integer
 ├── endPage         Integer
-├── videoStyle      String
-├── narrationStyle  String
 ├── creativeBrief   Text (nullable)
-├── atmosphere      JSON (e.g., { "rainSfx": true, "streetNoise": true })
 ├── status          Enum (PROCESSING, COMPLETED, CANCELLED)
 ├── errorMessage    Text (nullable)
 ├── videoUrl        String (nullable, file storage path)
 ├── duration        Integer (seconds, nullable)
-├── format          String (nullable)
-├── metadata        JSON (nullable — scenes, BPM, style info)
+├── formatSize      Enum (VERTICAL, HORIZONTAL) default VERTICAL
 ├── createdAt       DateTime
 ├── updatedAt       DateTime
 
 ProcessingJob
 ├── id              UUID (PK)
 ├── projectId       UUID (FK → Project)
-├── currentStep     String (e.g., "pdf_extraction", "vision_analysis", "script_gen", "tts", "render")
+├── currentStep     Enum (PDF_EXTRACTION, VISION_ANALYSIS, SCRIPT_GEN, TTS, RENDER)
 ├── progress        Integer (0-100)
-├── stepLabel       String (e.g., "Rendering Frames")
 ├── startedAt       DateTime (nullable)
 ├── completedAt     DateTime (nullable)
 ├── errorDetails    Text (nullable)
@@ -808,7 +797,6 @@ interface Scene {
 | AI model fallback strategy     | Automatic fallback between vision/LLM/TTS providers      |
 | Retry logic and error recovery | Automatic retries with exponential backoff               |
 | Video style variations         | Multiple Remotion templates (Cinematic, Comic Pop, Noir) |
-| Atmosphere audio mixing        | Rain SFX, Street Noise, Orchestral Score integration     |
 | Performance optimization       | Parallel stage execution where possible                  |
 
 #### Phase 3 — v2.0 (Weeks 11-16)
@@ -882,7 +870,6 @@ The application follows a dark-themed UI with a cyberpunk/comic aesthetic brande
 | HQ               | "História em Quadrinhos" — Portuguese for comic book                                        |
 | Scene            | A segment of the generated video corresponding to one or more panels                        |
 | Creative Brief   | User-provided text describing desired pacing, mood, and highlights                          |
-| Narration Style  | The tone and delivery style of the AI-generated voiceover                                   |
 | Ken Burns Effect | A panning/zooming animation applied to still images                                         |
 | BPM              | Beats Per Minute — tempo of background music, if applicable                                 |
 | TTS              | Text-to-Speech — AI technology that converts text into spoken audio                         |

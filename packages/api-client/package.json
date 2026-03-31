@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "type-check": "tsc -b --noEmit",
     "build": "tsc",
     "dev": "tsc --watch",
     "lint": "eslint src --max-warnings 0",

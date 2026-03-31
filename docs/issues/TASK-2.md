@@ -41,9 +41,8 @@ Definir os **schemas Zod** de request/response para todos os endpoints da aplica
 
 - [ ] Enum de status do projeto: `PROCESSING | COMPLETED | CANCELLED`
 - [ ] Enum de step do pipeline: `pdf_extraction | vision_analysis | script_gen | tts | render`
-- [ ] Schema `Project` completo (todos os campos da seção 4.9 do PRD)
+- [ ] Schema `Project` completo (todos os campos da seção 4.9 do PRD: `id`, `title`, `pdfUrl`, `startPage`, `endPage`, `creativeBrief`, `status`, `errorMessage`, `videoUrl`, `duration`, `formatSize`, `createdAt`, `updatedAt`)
 - [ ] Schema `ProcessingJob` completo
-- [ ] Schema `AtmosphereConfig`: `{ rainSfx, streetNoise, orchestralScore }`
 - [ ] Schema `QueueStatus` com `activeTasks`, `completedToday`, `items[]`
 - [ ] Schema `DashboardMetrics` com `totalVideosGenerated`, `activeJobs`, `conversionRate`, `completedToday`
 

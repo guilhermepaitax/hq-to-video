@@ -56,9 +56,7 @@
                   "file",
                   "title",
                   "startPage",
-                  "endPage",
-                  "videoStyle",
-                  "narrationStyle"
+                  "endPage"
                 ],
                 "properties": {
                   "file": {
@@ -78,31 +76,8 @@
                     "type": "integer",
                     "minimum": 1
                   },
-                  "videoStyle": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "narrationStyle": {
-                    "type": "string",
-                    "minLength": 1
-                  },
                   "creativeBrief": {
                     "type": "string"
-                  },
-                  "atmosphere": {
-                    "type": "object",
-                    "properties": {
-                      "rainSfx": {
-                        "type": "boolean"
-                      },
-                      "streetNoise": {
-                        "type": "boolean"
-                      },
-                      "orchestralScore": {
-                        "type": "boolean"
-                      }
-                    },
-                    "additionalProperties": false
                   }
                 }
               }
@@ -133,38 +108,10 @@
                     "endPage": {
                       "type": "integer"
                     },
-                    "videoStyle": {
-                      "type": "string"
-                    },
-                    "narrationStyle": {
-                      "type": "string"
-                    },
                     "creativeBrief": {
                       "type": [
                         "null",
                         "string"
-                      ]
-                    },
-                    "atmosphere": {
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "rainSfx": {
-                              "type": "boolean"
-                            },
-                            "streetNoise": {
-                              "type": "boolean"
-                            },
-                            "orchestralScore": {
-                              "type": "boolean"
-                            }
-                          },
-                          "additionalProperties": false
-                        },
-                        {
-                          "type": "null"
-                        }
                       ]
                     },
                     "status": {
@@ -197,21 +144,11 @@
                         }
                       ]
                     },
-                    "format": {
-                      "type": [
-                        "null",
-                        "string"
-                      ]
-                    },
-                    "metadata": {
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "additionalProperties": {}
-                        },
-                        {
-                          "type": "null"
-                        }
+                    "formatSize": {
+                      "type": "string",
+                      "enum": [
+                        "VERTICAL",
+                        "HORIZONTAL"
                       ]
                     },
                     "createdAt": {
@@ -229,16 +166,12 @@
                     "pdfUrl",
                     "startPage",
                     "endPage",
-                    "videoStyle",
-                    "narrationStyle",
                     "creativeBrief",
-                    "atmosphere",
                     "status",
                     "errorMessage",
                     "videoUrl",
                     "duration",
-                    "format",
-                    "metadata",
+                    "formatSize",
                     "createdAt",
                     "updatedAt"
                   ],
@@ -349,38 +282,10 @@
                       "endPage": {
                         "type": "integer"
                       },
-                      "videoStyle": {
-                        "type": "string"
-                      },
-                      "narrationStyle": {
-                        "type": "string"
-                      },
                       "creativeBrief": {
                         "type": [
                           "null",
                           "string"
-                        ]
-                      },
-                      "atmosphere": {
-                        "anyOf": [
-                          {
-                            "type": "object",
-                            "properties": {
-                              "rainSfx": {
-                                "type": "boolean"
-                              },
-                              "streetNoise": {
-                                "type": "boolean"
-                              },
-                              "orchestralScore": {
-                                "type": "boolean"
-                              }
-                            },
-                            "additionalProperties": false
-                          },
-                          {
-                            "type": "null"
-                          }
                         ]
                       },
                       "status": {
@@ -413,21 +318,11 @@
                           }
                         ]
                       },
-                      "format": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
-                      },
-                      "metadata": {
-                        "anyOf": [
-                          {
-                            "type": "object",
-                            "additionalProperties": {}
-                          },
-                          {
-                            "type": "null"
-                          }
+                      "formatSize": {
+                        "type": "string",
+                        "enum": [
+                          "VERTICAL",
+                          "HORIZONTAL"
                         ]
                       },
                       "createdAt": {
@@ -452,20 +347,17 @@
                           "currentStep": {
                             "type": "string",
                             "enum": [
-                              "pdf_extraction",
-                              "vision_analysis",
-                              "script_gen",
-                              "tts",
-                              "render"
+                              "PDF_EXTRACTION",
+                              "VISION_ANALYSIS",
+                              "SCRIPT_GEN",
+                              "TTS",
+                              "RENDER"
                             ]
                           },
                           "progress": {
                             "type": "integer",
                             "minimum": 0,
                             "maximum": 100
-                          },
-                          "stepLabel": {
-                            "type": "string"
                           },
                           "startedAt": {
                             "anyOf": [
@@ -505,7 +397,6 @@
                           "projectId",
                           "currentStep",
                           "progress",
-                          "stepLabel",
                           "startedAt",
                           "completedAt",
                           "errorDetails",
@@ -520,16 +411,12 @@
                       "pdfUrl",
                       "startPage",
                       "endPage",
-                      "videoStyle",
-                      "narrationStyle",
                       "creativeBrief",
-                      "atmosphere",
                       "status",
                       "errorMessage",
                       "videoUrl",
                       "duration",
-                      "format",
-                      "metadata",
+                      "formatSize",
                       "createdAt",
                       "updatedAt",
                       "processingJob"
@@ -630,38 +517,10 @@
                     "endPage": {
                       "type": "integer"
                     },
-                    "videoStyle": {
-                      "type": "string"
-                    },
-                    "narrationStyle": {
-                      "type": "string"
-                    },
                     "creativeBrief": {
                       "type": [
                         "null",
                         "string"
-                      ]
-                    },
-                    "atmosphere": {
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "rainSfx": {
-                              "type": "boolean"
-                            },
-                            "streetNoise": {
-                              "type": "boolean"
-                            },
-                            "orchestralScore": {
-                              "type": "boolean"
-                            }
-                          },
-                          "additionalProperties": false
-                        },
-                        {
-                          "type": "null"
-                        }
                       ]
                     },
                     "status": {
@@ -694,21 +553,11 @@
                         }
                       ]
                     },
-                    "format": {
-                      "type": [
-                        "null",
-                        "string"
-                      ]
-                    },
-                    "metadata": {
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "additionalProperties": {}
-                        },
-                        {
-                          "type": "null"
-                        }
+                    "formatSize": {
+                      "type": "string",
+                      "enum": [
+                        "VERTICAL",
+                        "HORIZONTAL"
                       ]
                     },
                     "createdAt": {
@@ -733,20 +582,17 @@
                         "currentStep": {
                           "type": "string",
                           "enum": [
-                            "pdf_extraction",
-                            "vision_analysis",
-                            "script_gen",
-                            "tts",
-                            "render"
+                            "PDF_EXTRACTION",
+                            "VISION_ANALYSIS",
+                            "SCRIPT_GEN",
+                            "TTS",
+                            "RENDER"
                           ]
                         },
                         "progress": {
                           "type": "integer",
                           "minimum": 0,
                           "maximum": 100
-                        },
-                        "stepLabel": {
-                          "type": "string"
                         },
                         "startedAt": {
                           "anyOf": [
@@ -786,7 +632,6 @@
                         "projectId",
                         "currentStep",
                         "progress",
-                        "stepLabel",
                         "startedAt",
                         "completedAt",
                         "errorDetails",
@@ -801,16 +646,12 @@
                     "pdfUrl",
                     "startPage",
                     "endPage",
-                    "videoStyle",
-                    "narrationStyle",
                     "creativeBrief",
-                    "atmosphere",
                     "status",
                     "errorMessage",
                     "videoUrl",
                     "duration",
-                    "format",
-                    "metadata",
+                    "formatSize",
                     "createdAt",
                     "updatedAt",
                     "processingJob"
@@ -1081,38 +922,10 @@
                     "endPage": {
                       "type": "integer"
                     },
-                    "videoStyle": {
-                      "type": "string"
-                    },
-                    "narrationStyle": {
-                      "type": "string"
-                    },
                     "creativeBrief": {
                       "type": [
                         "null",
                         "string"
-                      ]
-                    },
-                    "atmosphere": {
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "rainSfx": {
-                              "type": "boolean"
-                            },
-                            "streetNoise": {
-                              "type": "boolean"
-                            },
-                            "orchestralScore": {
-                              "type": "boolean"
-                            }
-                          },
-                          "additionalProperties": false
-                        },
-                        {
-                          "type": "null"
-                        }
                       ]
                     },
                     "status": {
@@ -1145,21 +958,11 @@
                         }
                       ]
                     },
-                    "format": {
-                      "type": [
-                        "null",
-                        "string"
-                      ]
-                    },
-                    "metadata": {
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "additionalProperties": {}
-                        },
-                        {
-                          "type": "null"
-                        }
+                    "formatSize": {
+                      "type": "string",
+                      "enum": [
+                        "VERTICAL",
+                        "HORIZONTAL"
                       ]
                     },
                     "createdAt": {
@@ -1184,20 +987,17 @@
                         "currentStep": {
                           "type": "string",
                           "enum": [
-                            "pdf_extraction",
-                            "vision_analysis",
-                            "script_gen",
-                            "tts",
-                            "render"
+                            "PDF_EXTRACTION",
+                            "VISION_ANALYSIS",
+                            "SCRIPT_GEN",
+                            "TTS",
+                            "RENDER"
                           ]
                         },
                         "progress": {
                           "type": "integer",
                           "minimum": 0,
                           "maximum": 100
-                        },
-                        "stepLabel": {
-                          "type": "string"
                         },
                         "startedAt": {
                           "anyOf": [
@@ -1237,7 +1037,6 @@
                         "projectId",
                         "currentStep",
                         "progress",
-                        "stepLabel",
                         "startedAt",
                         "completedAt",
                         "errorDetails",
@@ -1252,16 +1051,12 @@
                     "pdfUrl",
                     "startPage",
                     "endPage",
-                    "videoStyle",
-                    "narrationStyle",
                     "creativeBrief",
-                    "atmosphere",
                     "status",
                     "errorMessage",
                     "videoUrl",
                     "duration",
-                    "format",
-                    "metadata",
+                    "formatSize",
                     "createdAt",
                     "updatedAt",
                     "processingJob"
@@ -1539,10 +1334,18 @@
                           "title": {
                             "type": "string"
                           },
-                          "format": {
-                            "type": [
-                              "null",
-                              "string"
+                          "formatSize": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "VERTICAL",
+                                  "HORIZONTAL"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
                             ]
                           },
                           "durationSeconds": {
@@ -1576,12 +1379,6 @@
                               }
                             ]
                           },
-                          "stepLabel": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          },
                           "queuePosition": {
                             "anyOf": [
                               {
@@ -1603,11 +1400,10 @@
                           "projectId",
                           "thumbnailUrl",
                           "title",
-                          "format",
+                          "formatSize",
                           "durationSeconds",
                           "status",
                           "progress",
-                          "stepLabel",
                           "queuePosition",
                           "failureReason"
                         ],

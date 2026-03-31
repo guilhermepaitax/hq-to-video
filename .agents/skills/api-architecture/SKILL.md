@@ -50,6 +50,31 @@ application/controllers/<domain>/
     └── create-<domain>-schema.ts
 ```
 
+### Repository / Gateway Contract
+
+Repository interfaces live in `application/contracts/`. Method-specific input types are declared in a **namespace** on the same file to keep parameter shapes co-located with the interface.
+
+```ts
+// application/contracts/project-repository.ts
+export interface ProjectRepository {
+  create(project: Project): Promise<Project>;
+
+  findById(id: string): Promise<Project | null>;
+
+  findAll(): Promise<Project[]>;
+
+  updateStatus(input: ProjectRepository.UpdateStatusInput): Promise<void>;
+}
+
+export namespace ProjectRepository {
+  export type UpdateStatusInput = {
+    id: string;
+    status: Project.Status;
+    errorMessage?: string | null;
+  };
+}
+```
+
 ### Use Case
 
 Use cases are plain classes decorated with `@Injectable()`. They receive dependencies via constructor injection and expose an `execute(input): Promise<output>` method. Input/Output types are declared in a namespace on the same file.
@@ -61,11 +86,63 @@ application/usecases/<domain>/
 
 ### Entity
 
-Entities are plain TypeScript classes. They hold identity, invariants, and enumerations.
+Entities are plain TypeScript classes. They hold identity, invariants, and enumerations. The constructor always receives an `Attributes` object. Enums and the `Attributes` type are declared inside a **namespace** on the same file.
 
 ```
 application/entities/
 └── <domain>.ts
+```
+
+**Pattern:**
+
+```ts
+export class Project {
+  readonly id: string;
+  readonly title: string;
+  readonly status: Project.Status;
+  readonly formatSize: Project.FormatSize;
+  readonly createdAt?: Date;
+  readonly updatedAt?: Date;
+
+  constructor(attributes: Project.Attributes) {
+    this.id = attributes.id;
+    this.title = attributes.title;
+    this.status = attributes.status ?? Project.Status.PROCESSING;
+    this.formatSize = attributes.formatSize ?? Project.FormatSize.VERTICAL;
+    this.createdAt = attributes.createdAt ?? new Date();
+    this.updatedAt = attributes.updatedAt;
+  }
+}
+
+export namespace Project {
+  export enum Status {
+    PROCESSING = 'PROCESSING',
+    COMPLETED = 'COMPLETED',
+    CANCELLED = 'CANCELLED',
+  }
+
+  export enum FormatSize {
+    VERTICAL = 'VERTICAL',
+    HORIZONTAL = 'HORIZONTAL',
+  }
+
+  export enum PipelineStep {
+    PdfExtraction = 'PDF_EXTRACTION',
+    VisionAnalysis = 'VISION_ANALYSIS',
+    ScriptGen = 'SCRIPT_GEN',
+    Tts = 'TTS',
+    Render = 'RENDER',
+  }
+
+  export type Attributes = {
+    id: string;
+    title: string;
+    status?: Status;
+    formatSize?: FormatSize;
+    createdAt?: Date;
+    updatedAt?: Date;
+  };
+}
 ```
 
 ---
@@ -74,17 +151,17 @@ application/entities/
 
 Concrete implementations of contracts defined in `application/`. Can import infrastructure SDKs (AWS SDK, Drizzle, etc.).
 
-| Folder                           | Purpose                                                 |
-| -------------------------------- | ------------------------------------------------------- |
-| `ai/gateways/`                   | AI provider integrations                                |
-| `ai/prompts/`                    | Prompt templates                                        |
-| `clients/`                       | Raw HTTP/SDK clients                                    |
-| `database/drizzle/repositories/` | Drizzle repository implementations                      |
-| `database/drizzle/items/`        | Drizzle item mappers (entity ↔ drizzle record)          |
-| `database/drizzle/schema.ts`     | Drizzle table definitions                               |
-| `database/drizzle/migrations/`   | SQL migrations                                          |
-| `database/drizzle/uow/`          | Unit of Work for drizzle transactions                   |
-| `gateways/`                      | External service gateways (storage, queues, auth, etc.) |
+| Folder                           | Purpose                                                                                                    |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `ai/gateways/`                   | AI provider integrations                                                                                   |
+| `ai/prompts/`                    | Prompt templates                                                                                           |
+| `clients/`                       | Raw HTTP/SDK clients                                                                                       |
+| `database/drizzle/repositories/` | Drizzle repository implementations (implement contracts, decorated with `@Injectable()`)                   |
+| `database/drizzle/items/`        | Drizzle item mappers — pure functions `<domain>FromDrizzle(row)` converting a DB record to a domain entity |
+| `database/drizzle/schema.ts`     | Drizzle table definitions (`pgTable`, `pgEnum`, etc.)                                                      |
+| `database/drizzle/migrations/`   | SQL migrations                                                                                             |
+| `database/drizzle/uow/`          | Unit of Work for drizzle transactions                                                                      |
+| `gateways/`                      | External service gateways (storage, queues, auth, etc.)                                                    |
 
 ---
 
@@ -162,12 +239,12 @@ This project generates the OpenAPI 3.1 specification **automatically** from the 
 ### Plugin Setup (`main/server.ts`)
 
 ```ts
-import Fastify from 'fastify'
-import fastifySwagger from '@fastify/swagger'
-import fastifySwaggerUi from '@fastify/swagger-ui'
+import Fastify from 'fastify';
+import fastifySwagger from '@fastify/swagger';
+import fastifySwaggerUi from '@fastify/swagger-ui';
 
 export async function buildServer() {
-  const app = Fastify({ logger: true })
+  const app = Fastify({ logger: true });
 
   await app.register(fastifySwagger, {
     openapi: {
@@ -179,40 +256,40 @@ export async function buildServer() {
         { name: 'Dashboard', description: 'Dashboard metrics' },
       ],
     },
-  })
+  });
 
   await app.register(fastifySwaggerUi, {
     routePrefix: '/docs',
-  })
+  });
 
   // Register all routes
-  await app.register(projectsRoutes, { prefix: '/api' })
-  await app.register(queueRoutes, { prefix: '/api' })
-  await app.register(dashboardRoutes, { prefix: '/api' })
+  await app.register(projectsRoutes, { prefix: '/api' });
+  await app.register(queueRoutes, { prefix: '/api' });
+  await app.register(dashboardRoutes, { prefix: '/api' });
 
-  return app
+  return app;
 }
 ```
 
 ### Exporting the Spec (`scripts/export-openapi.ts`)
 
 ```ts
-import { buildServer } from '../src/main/server'
-import { writeFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { buildServer } from '../src/main/server';
+import { writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 async function main() {
-  const app = await buildServer()
-  await app.ready()
+  const app = await buildServer();
+  await app.ready();
 
-  const spec = app.swagger()
-  const outPath = resolve(__dirname, '../../docs/openapi.json')
-  writeFileSync(outPath, JSON.stringify(spec, null, 2))
-  console.log(`OpenAPI spec exported to ${outPath}`)
-  await app.close()
+  const spec = app.swagger();
+  const outPath = resolve(__dirname, '../../docs/openapi.json');
+  writeFileSync(outPath, JSON.stringify(spec, null, 2));
+  console.log(`OpenAPI spec exported to ${outPath}`);
+  await app.close();
 }
 
-main()
+main();
 ```
 
 Add to `package.json` in `apps/backend`:
@@ -231,8 +308,8 @@ Each route in `main/functions/<domain>/` registers the controller with its JSON 
 
 ```ts
 // main/functions/projects/create-project.ts
-import { CreateProjectController } from '@application/controllers/projects/create-project-controller'
-import { fastifyHttpAdapter } from '@main/adapters/fastify-http-adapter'
+import { CreateProjectController } from '@application/controllers/projects/create-project-controller';
+import { fastifyHttpAdapter } from '@main/adapters/fastify-http-adapter';
 
 export async function createProjectRoute(app: FastifyInstance) {
   app.post('/projects', {
@@ -240,11 +317,11 @@ export async function createProjectRoute(app: FastifyInstance) {
       tags: ['Projects'],
       summary: 'Create project with PDF upload',
       consumes: ['multipart/form-data'],
-      body: createProjectJsonSchema,        // from Zod schema via zod-to-json-schema
+      body: createProjectJsonSchema, // from Zod schema via zod-to-json-schema
       response: { 201: projectResponseSchema },
     },
     handler: fastifyHttpAdapter(CreateProjectController),
-  })
+  });
 }
 ```
 
@@ -252,24 +329,28 @@ export async function createProjectRoute(app: FastifyInstance) {
 
 ```ts
 // application/controllers/projects/schemas/create-project-schema.ts
-import { z } from 'zod'
-import { zodToJsonSchema } from 'zod-to-json-schema'
+import { z } from 'zod';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 
-export const createProjectSchema = z.object({
+export const createProjectFormFieldsSchema = z.object({
   title: z.string().min(1),
   startPage: z.number().int().min(1),
   endPage: z.number().int().min(1),
-  videoStyle: z.string(),
-  narrationStyle: z.string(),
   creativeBrief: z.string().optional(),
-  atmosphere: z.object({
-    rainSfx: z.boolean().optional(),
-    streetNoise: z.boolean().optional(),
-    orchestralScore: z.boolean().optional(),
-  }).optional(),
-})
+});
 
-export const createProjectJsonSchema = zodToJsonSchema(createProjectSchema)
+export const createProjectMultipartBodyJsonSchema = {
+  type: 'object',
+  required: ['file', 'title', 'startPage', 'endPage'],
+  properties: {
+    file: {
+      type: 'string',
+      contentEncoding: 'binary',
+      description: 'Comic book PDF file',
+    },
+    // ...spread formFields properties
+  },
+} as const;
 ```
 
 ### Kubb Consumes the Exported Spec
@@ -280,10 +361,10 @@ After `pnpm openapi:export`, the `packages/api-client` Kubb config reads the com
 // packages/api-client/kubb.config.ts
 export default defineConfig({
   input: {
-    path: '../../docs/openapi.json',   // auto-generated, not hand-written
+    path: '../../docs/openapi.json', // auto-generated, not hand-written
   },
   // ...
-})
+});
 ```
 
 ### Re-generation Workflow
@@ -327,7 +408,32 @@ When adding a new domain or endpoint, follow this order:
 export class Workout {
   readonly id: string;
   readonly accountId: string;
-  // ...
+  readonly name: string;
+  readonly status: Workout.Status;
+  readonly createdAt?: Date;
+
+  constructor(attributes: Workout.Attributes) {
+    this.id = attributes.id;
+    this.accountId = attributes.accountId;
+    this.name = attributes.name;
+    this.status = attributes.status ?? Workout.Status.ACTIVE;
+    this.createdAt = attributes.createdAt ?? new Date();
+  }
+}
+
+export namespace Workout {
+  export enum Status {
+    ACTIVE = 'ACTIVE',
+    COMPLETED = 'COMPLETED',
+  }
+
+  export type Attributes = {
+    id: string;
+    accountId: string;
+    name: string;
+    status?: Status;
+    createdAt?: Date;
+  };
 }
 ```
 
@@ -359,7 +465,7 @@ export namespace CreateWorkoutUsecase {
 @Injectable()
 @Schema(createWorkoutSchema)
 export class CreateWorkoutController extends Controller<
-  "private",
+  'private',
   CreateWorkoutController.Response
 > {
   constructor(private readonly createWorkoutUsecase: CreateWorkoutUsecase) {
@@ -369,7 +475,7 @@ export class CreateWorkoutController extends Controller<
   protected override async handle({
     accountId,
     body,
-  }: Controller.Request<"private", CreateWorkoutBody>) {
+  }: Controller.Request<'private', CreateWorkoutBody>) {
     const { workoutId } = await this.createWorkoutUsecase.execute({
       accountId,
     });
@@ -381,9 +487,9 @@ export class CreateWorkoutController extends Controller<
 **`main/functions/workouts/create-workout.ts`**
 
 ```ts
-import { CreateWorkoutController } from '@application/controllers/workouts/create-workout-controller'
-import { fastifyHttpAdapter } from '@main/adapters/fastify-http-adapter'
-import { createWorkoutJsonSchema } from '@application/controllers/workouts/schemas/create-workout-schema'
+import { CreateWorkoutController } from '@application/controllers/workouts/create-workout-controller';
+import { fastifyHttpAdapter } from '@main/adapters/fastify-http-adapter';
+import { createWorkoutJsonSchema } from '@application/controllers/workouts/schemas/create-workout-schema';
 
 export async function createWorkoutRoute(app: FastifyInstance) {
   app.post('/workouts', {
@@ -394,7 +500,7 @@ export async function createWorkoutRoute(app: FastifyInstance) {
       response: { 201: workoutResponseSchema },
     },
     handler: fastifyHttpAdapter(CreateWorkoutController),
-  })
+  });
 }
 ```
 
@@ -407,11 +513,11 @@ Use `Controller<'public'>` — `accountId` will be typed as `null`.
 ```ts
 @Injectable()
 export class GetHealthController extends Controller<
-  "public",
+  'public',
   { status: string }
 > {
-  protected override async handle(_request: Controller.Request<"public">) {
-    return { statusCode: 200, body: { status: "ok" } };
+  protected override async handle(_request: Controller.Request<'public'>) {
+    return { statusCode: 200, body: { status: 'ok' } };
   }
 }
 ```

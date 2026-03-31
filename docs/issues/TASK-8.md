@@ -26,7 +26,7 @@ Implementar o **queue gateway** com BullMQ e Redis, seguindo a Clean Architectur
     getQueueMetrics(): Promise<QueueMetrics>
   }
   ```
-- [ ] Tipos `JobPayload`, `JobStatus`, `QueueMetrics`, `AtmosphereConfig` definidos no mesmo arquivo ou em `shared/types/queue.ts`
+- [ ] Tipos `JobPayload`, `JobStatus`, `QueueMetrics` definidos no mesmo arquivo ou em `shared/types/queue.ts`
 
 ### Implementação Concreta (infra layer)
 
@@ -90,10 +90,7 @@ export interface JobPayload {
     pdfUrl: string
     startPage: number
     endPage: number
-    videoStyle: string
-    narrationStyle: string
     creativeBrief?: string
-    atmosphere?: AtmosphereConfig
   }
 }
 ```

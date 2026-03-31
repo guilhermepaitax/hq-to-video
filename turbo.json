@@ -9,6 +9,7 @@
       "cache": false,
       "persistent": true
     },
+    "type-check": {},
     "lint": {},
     "test": {}
   }

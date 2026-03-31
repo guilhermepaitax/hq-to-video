@@ -26,7 +26,6 @@ Implementar o **Stage 3** do pipeline de IA conforme seção 3.4 do PRD: transfo
     export type Input = {
       panels: PanelAnalysis[]
       creativeBrief?: string
-      narrationStyle: string
     }
   }
   ```
@@ -37,6 +36,7 @@ Implementar o **Stage 3** do pipeline de IA conforme seção 3.4 do PRD: transfo
   - Instrui estrutura narrativa: Hook (0-3s), Rising action, Climax, Cliffhanger/CTA
   - Duração total entre 15-60 segundos
   - Narração em PT-BR
+  - Creative brief incorporado quando fornecido
   - Referências corretas aos painéis e efeitos de câmera
 
 ### Implementação Concreta (infra layer)
@@ -52,14 +52,13 @@ Implementar o **Stage 3** do pipeline de IA conforme seção 3.4 do PRD: transfo
 - [ ] `ScriptGenerationService` em `application/services/script-generation-service.ts`:
   - Decorado com `@Injectable()`
   - Recebe `ScriptGeneratorGateway` via constructor injection
-  - Incorpora `creativeBrief` e `narrationStyle` no input
+  - Incorpora `creativeBrief` no input quando fornecido
   - Valida output: duração coerente, referências de painéis válidas
 
 ### Comportamento
 
-- [ ] Input: array de `PanelAnalysis[]`, creative brief, narration style
+- [ ] Input: array de `PanelAnalysis[]`, creative brief
 - [ ] Output: `title`, `totalDuration`, `scenes[]` conforme schema seção 3.4
-- [ ] Tom e estilo alinhados com `narrationStyle` (Classic Noir, Epic Narrator, Casual Storyteller)
 - [ ] Creative brief incorporado ao prompt quando fornecido
 
 ### Registro no DI
@@ -87,12 +86,6 @@ Implementar o **Stage 3** do pipeline de IA conforme seção 3.4 do PRD: transfo
   ]
 }
 ```
-
-### Narration Styles
-
-- **Classic Noir Monologue**: tom sombrio, introspectivo, frases curtas
-- **Epic Narrator**: tom grandioso, épico, voz de trailer
-- **Casual Storyteller**: tom conversacional, como quem conta uma história para amigos
 
 ### Estrutura de Arquivos
 

@@ -93,11 +93,16 @@ export class CreateProjectUsecase {
 
   async execute(input: CreateProjectUsecase.Input): Promise<CreateProjectUsecase.Output> {
     const pdfUrl = await this.storageGateway.savePdf(input.projectId, input.file)
-    const project = await this.projectRepository.create({
-      ...input,
+    const project = new Project({
+      id: input.projectId,
+      title: input.title,
       pdfUrl,
-      status: 'PROCESSING',
+      startPage: input.startPage,
+      endPage: input.endPage,
+      creativeBrief: input.creativeBrief,
+      status: Project.Status.PROCESSING,
     })
+    await this.projectRepository.create(project)
     return { project }
   }
 }
@@ -109,10 +114,7 @@ export namespace CreateProjectUsecase {
     title: string
     startPage: number
     endPage: number
-    videoStyle: string
-    narrationStyle: string
     creativeBrief?: string
-    atmosphere?: AtmosphereConfig
   }
   export type Output = { project: Project }
 }

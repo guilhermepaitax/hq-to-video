@@ -8,7 +8,6 @@ export const processingJobSchema = z.object({
   projectId: z.string().uuid(),
   currentStep: pipelineStepSchema,
   progress: z.number().int().min(0).max(100),
-  stepLabel: z.string(),
   startedAt: z.string().datetime().nullable(),
   completedAt: z.string().datetime().nullable(),
   errorDetails: z.string().nullable(),

@@ -26,15 +26,9 @@ Implementar a tela de **New Video Project** conforme Screen 2 da seção 2.3 e U
 
 ### Configuração (US-02)
 
-- [ ] **Video Style** — dropdown com opções (ex: "9:16 Cinematic HDR")
-- [ ] **Narration Style** — dropdown com opções (ex: "Classic Noir Monologue", "Epic Narrator", "Casual Storyteller")
 - [ ] **Start Page** — input numérico (min: 1)
 - [ ] **End Page** — input numérico
 - [ ] **Creative Brief** — textarea para descrição de pacing, mood, destaques
-- [ ] **Atmosphere Enhancements** — checkboxes:
-  - Rain SFX
-  - Street Noise
-  - Orchestral Score
 - [ ] Validação: startPage < endPage, ambos >= 1
 
 ### Geração (US-03)
@@ -67,10 +61,7 @@ const handleSubmit = () => {
   formData.append('title', title)
   formData.append('startPage', startPage.toString())
   formData.append('endPage', endPage.toString())
-  formData.append('videoStyle', videoStyle)
-  formData.append('narrationStyle', narrationStyle)
-  formData.append('creativeBrief', creativeBrief)
-  formData.append('atmosphere', JSON.stringify(atmosphere))
+  if (creativeBrief) formData.append('creativeBrief', creativeBrief)
 
   createProject.mutate({ data: formData })
 }

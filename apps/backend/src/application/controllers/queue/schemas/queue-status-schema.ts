@@ -13,11 +13,10 @@ export const queueItemSchema = z.object({
   projectId: z.string().uuid(),
   thumbnailUrl: z.string().nullable(),
   title: z.string(),
-  format: z.string().nullable(),
+  formatSize: z.enum(['VERTICAL', 'HORIZONTAL']).nullable(),
   durationSeconds: z.number().int().nullable(),
   status: queueItemStatusSchema,
   progress: z.number().int().min(0).max(100).nullable(),
-  stepLabel: z.string().nullable(),
   queuePosition: z.number().int().nullable(),
   failureReason: z.string().nullable(),
 });

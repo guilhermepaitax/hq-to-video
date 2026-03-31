@@ -12,4 +12,8 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
+  rules: {
+    '@typescript-eslint/no-namespace': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+  },
 };

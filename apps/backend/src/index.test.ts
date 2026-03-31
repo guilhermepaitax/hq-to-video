@@ -1,7 +1,9 @@
-import test from 'node:test';
 import assert from 'node:assert/strict';
-import { workspace } from './index.js';
+import test from 'node:test';
 
-test('workspace name', () => {
-  assert.equal(workspace, 'backend');
+import { env } from './shared/config/env';
+
+test('env has default port', () => {
+  assert.ok(typeof env.port === 'number');
+  assert.ok(env.port > 0);
 });

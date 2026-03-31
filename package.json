@@ -9,7 +9,9 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "openapi:export": "pnpm --filter @hq-to-video/backend openapi:export",
+    "backend:dev": "pnpm --filter @hq-to-video/backend dev"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",

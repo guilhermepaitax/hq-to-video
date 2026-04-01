@@ -155,13 +155,52 @@ Concrete implementations of contracts defined in `application/`. Can import infr
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `ai/gateways/`                   | AI provider integrations                                                                                   |
 | `ai/prompts/`                    | Prompt templates                                                                                           |
-| `clients/`                       | Raw HTTP/SDK clients                                                                                       |
+| `clients/`                       | Construction of raw HTTP / SDK clients (factories or thin wrappers) — **not** decorated with `@Injectable()` |
 | `database/drizzle/repositories/` | Drizzle repository implementations (implement contracts, decorated with `@Injectable()`)                   |
 | `database/drizzle/items/`        | Drizzle item mappers — pure functions `<domain>FromDrizzle(row)` converting a DB record to a domain entity |
 | `database/drizzle/schema.ts`     | Drizzle table definitions (`pgTable`, `pgEnum`, etc.)                                                      |
 | `database/drizzle/migrations/`   | SQL migrations                                                                                             |
 | `database/drizzle/uow/`          | Unit of Work for drizzle transactions                                                                      |
 | `gateways/`                      | External service gateways (storage, queues, auth, etc.)                                                    |
+
+### `infra/clients/` — SDK and HTTP clients
+
+Put **low-level client wiring** here: functions that return configured SDK instances (e.g. `S3Client`, `fetch` wrappers with base URL and headers). Gateways and repositories **call** these factories instead of instantiating SDKs inline.
+
+- **Naming:** one file per integration surface, e.g. `r2-s3-client.ts`, `openai-http-client.ts`.
+- **Inputs:** prefer a typed config object (often aligned with a contract namespace such as `StorageGateway.Config`, or plain options derived from `env` in the caller).
+- **No DI:** client modules are plain functions or classes; only `infra/gateways/` and `infra/database/...` implementations use `@Injectable()` and participate in the `Registry`.
+
+**Example:**
+
+```
+infra/clients/
+└── r2-s3-client.ts     # export function createR2S3Client(config): S3Client
+```
+
+```ts
+// infra/clients/r2-s3-client.ts
+import { S3Client } from '@aws-sdk/client-s3';
+import type { StorageGateway } from '@application/contracts/storage-gateway';
+
+export function createR2S3Client(config: StorageGateway.Config): S3Client {
+  const endpoint =
+    config.endpoint ?? `https://${config.accountId}.r2.cloudflarestorage.com`;
+  const useCustomEndpoint = Boolean(config.endpoint);
+
+  return new S3Client({
+    region: 'auto',
+    endpoint,
+    credentials: {
+      accessKeyId: config.accessKeyId,
+      secretAccessKey: config.secretAccessKey,
+    },
+    ...(useCustomEndpoint ? { forcePathStyle: true as const } : {}),
+  });
+}
+```
+
+Gateways then import `createR2S3Client` and focus on commands, uploads, and error mapping.
 
 ---
 
@@ -391,7 +430,7 @@ When adding a new domain or endpoint, follow this order:
 4. **Repository/Gateway interface** (if needed) → `application/contracts/<domain>-repository.ts`
 5. **Controller schema** → `application/controllers/<domain>/schemas/<action>-schema.ts`
 6. **Controller** → `application/controllers/<domain>/<action>-controller.ts`
-7. **Infra implementations** → `infra/database/drizzle/repositories/`, `infra/gateways/`, `infra/ai/gateways/`, etc.
+7. **Infra implementations** → `infra/clients/` (SDK factories), `infra/database/drizzle/repositories/`, `infra/gateways/`, `infra/ai/gateways/`, etc.
 8. **Entry point** → `main/functions/<domain>/<action>.ts` (registers route + schema in Fastify)
 9. **Export spec** → `pnpm --filter backend openapi:export`
 10. **Regenerate client** → `pnpm --filter api-client generate`

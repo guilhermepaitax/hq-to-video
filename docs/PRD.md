@@ -390,10 +390,11 @@ Final Video (MP4)
                          │
                          v
 ┌──────────────────────────────────────────────────────────────────┐
-│                      File Storage                                 │
-│               (Local FS / S3-compatible)                          │
+│                   File Storage (Cloudflare R2)                     │
+│           (S3-compatible: R2, MinIO for local dev)                │
 │                                                                   │
 │  PDFs ─── Page Images ─── Audio Files ─── Final Videos            │
+│  Presigned URLs for secure download / streaming                   │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
@@ -751,7 +752,7 @@ interface Scene {
 | Script LLM      | OpenAI GPT-4o API (or Claude 3.5 Sonnet as fallback)                                  |
 | TTS             | ElevenLabs API (or OpenAI TTS as fallback)                                            |
 | Job Queue       | Queue adapter port — BullMQ (default), AWS SQS, or RabbitMQ via env config            |
-| File Storage    | Local filesystem for MVP; S3-compatible for production                                |
+| File Storage    | Cloudflare R2 via `@aws-sdk/client-s3` (S3-compatible API; MinIO for local dev)           |
 | Database        | PostgreSQL via Drizzle ORM (adapter port for repository implementations)              |
 | Video Rendering | Remotion (`@remotion/bundler` + `@remotion/renderer`)                                 |
 | TikTok Publish  | TikTok Content Posting API (OAuth 2.0)                                                |
@@ -763,7 +764,7 @@ interface Scene {
 | PDF file validation | Validate MIME type and file header; reject non-PDF files                                                            |
 | File size limits    | Enforce 150 MB max upload; reject oversized files server-side                                                       |
 | API key storage     | All AI provider API keys stored in environment variables, never committed to version control                        |
-| Uploaded content    | PDFs and generated assets stored in a non-publicly-accessible directory; served through authenticated API endpoints |
+| Uploaded content    | PDFs and generated assets stored in a private R2 bucket; served through time-limited presigned URLs via authenticated API endpoints |
 | IP protection       | Uploaded files are processed and stored encrypted at rest; deletion policy after configurable retention period      |
 | Rate limiting       | API rate limiting to prevent abuse (100 requests/min per user)                                                      |
 
@@ -804,7 +805,7 @@ interface Scene {
 | Milestone                               | Description                                            |
 | --------------------------------------- | ------------------------------------------------------ |
 | User authentication                     | Multi-user support with auth (e.g., Clerk, BetterAuth) |
-| Cloud deployment                        | S3 storage, containerized workers, auto-scaling        |
+| Cloud deployment                        | Containerized workers, auto-scaling, managed infra     |
 | Instagram Reels / YouTube Shorts export | Additional platform publishing                         |
 | Custom template editor                  | Allow users to tweak video layout and styles           |
 | Analytics dashboard                     | Engagement metrics from published videos               |

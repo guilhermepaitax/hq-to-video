@@ -11,12 +11,12 @@
     "type-check": "turbo run type-check",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "openapi:export": "pnpm --filter @hq-to-video/backend openapi:export",
-    "backend:dev": "pnpm --filter @hq-to-video/backend dev",
-    "db:generate": "pnpm --filter @hq-to-video/backend db:generate",
-    "db:migrate": "pnpm --filter @hq-to-video/backend db:migrate",
-    "db:studio": "pnpm --filter @hq-to-video/backend db:studio",
-    "backend:type-check": "pnpm --filter @hq-to-video/backend type-check"
+    "openapi:export": "pnpm --filter backend openapi:export",
+    "backend:dev": "pnpm --filter backend dev",
+    "db:generate": "pnpm --filter backend db:generate",
+    "db:migrate": "pnpm --filter backend db:migrate",
+    "db:studio": "pnpm --filter backend db:studio",
+    "backend:type-check": "pnpm --filter backend type-check"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",

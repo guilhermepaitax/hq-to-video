@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import 'reflect-metadata';
 
 import { buildServer } from '../src/main/server';

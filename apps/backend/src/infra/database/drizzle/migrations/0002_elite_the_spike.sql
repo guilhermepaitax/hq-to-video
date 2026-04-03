@@ -1,0 +1,1 @@
+ALTER TABLE "projects" ALTER COLUMN "pdf_url" DROP NOT NULL;

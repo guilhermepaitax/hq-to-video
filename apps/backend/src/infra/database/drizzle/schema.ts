@@ -24,9 +24,9 @@ export const pipelineStepEnum = pgEnum('pipeline_step', [
 export const formatSizeEnum = pgEnum('format_size', ['VERTICAL', 'HORIZONTAL']);
 
 export const projects = pgTable('projects', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: text('id').primaryKey(),
   title: text('title').notNull(),
-  pdfUrl: text('pdf_url').notNull(),
+  pdfUrl: text('pdf_url'),
   startPage: integer('start_page').notNull(),
   endPage: integer('end_page').notNull(),
   creativeBrief: text('creative_brief'),
@@ -45,7 +45,7 @@ export const projects = pgTable('projects', {
 
 export const processingJobs = pgTable('processing_jobs', {
   id: uuid('id').primaryKey().defaultRandom(),
-  projectId: uuid('project_id')
+  projectId: text('project_id')
     .notNull()
     .references(() => projects.id, { onDelete: 'cascade' }),
   currentStep: pipelineStepEnum('current_step').notNull(),

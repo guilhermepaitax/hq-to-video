@@ -1,48 +1,17 @@
 import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 
-import { projectJsonSchema } from './shared/project-schema';
+import { projectWrappedSchema } from './shared/project-schema';
 
-/** Logical multipart form fields (PDF binary documented separately for OpenAPI). */
-export const createProjectFormFieldsSchema = z.object({
+/**
+ * Body after multipart `attachFieldsToBody: 'keyValues'`: text fields are strings
+ * (pages coerced); file is a Buffer.
+ */
+export const createProjectRequestBodySchema = z.object({
+  file: z.instanceof(Buffer).describe('Comic book PDF file'),
   title: z.string().min(1),
-  startPage: z.number().int().min(1),
-  endPage: z.number().int().min(1),
+  startPage: z.coerce.number().int().min(1),
+  endPage: z.coerce.number().int().min(1),
   creativeBrief: z.string().optional(),
 });
 
-const formFieldsJson = zodToJsonSchema(createProjectFormFieldsSchema, {
-  $refStrategy: 'none',
-}) as {
-  type?: string;
-  properties?: Record<string, unknown>;
-  required?: string[];
-};
-
-const formProperties =
-  formFieldsJson.properties !== undefined &&
-  typeof formFieldsJson.properties === 'object'
-    ? formFieldsJson.properties
-    : {};
-
-const formRequired = Array.isArray(formFieldsJson.required)
-  ? [...formFieldsJson.required]
-  : [];
-
-/**
- * OpenAPI 3.1 body for multipart/form-data (file + fields).
- */
-export const createProjectMultipartBodyJsonSchema = {
-  type: 'object',
-  required: ['file', ...formRequired],
-  properties: {
-    file: {
-      type: 'string',
-      contentEncoding: 'binary',
-      description: 'Comic book PDF file',
-    },
-    ...formProperties,
-  },
-} as const;
-
-export const createProjectResponseJsonSchema = projectJsonSchema;
+export const createProjectResponseSchema = projectWrappedSchema;

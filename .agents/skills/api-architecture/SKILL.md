@@ -264,26 +264,36 @@ main → application ← infra
 
 ## OpenAPI Generation with `@fastify/swagger`
 
-This project generates the OpenAPI 3.1 specification **automatically** from the Fastify route schemas registered at runtime, using `@fastify/swagger`. The spec is **not authored manually** — it is derived from the Zod schemas attached to each controller.
+This project generates the OpenAPI 3.1 specification **automatically** from the Fastify route schemas registered at runtime, using `@fastify/swagger` and **`fastify-type-provider-zod`**. The spec is **not authored manually** — it is derived from the **Zod 4** schemas passed to each route’s `schema` option (no `zod-to-json-schema` at call sites; the type provider handles JSON Schema for Swagger).
+
+**Backend dependencies:** `fastify` 5.x, `zod` ^4.1.5, `fastify-type-provider-zod` ^6.x, `openapi-types`, `@fastify/swagger` ^9.5.1+.
 
 ### How It Works
 
-1. Each controller defines a **Zod schema** for its request body, params, query, and response.
-2. The schema is attached to the controller via `@Schema(zodSchema)` and converted to JSON Schema using `zod-to-json-schema`.
-3. When a route is registered in `main/functions/<domain>/`, the JSON Schema is passed as the Fastify route `schema` option.
+1. Each controller can define a **Zod schema** for its inputs (and/or attach metadata via `@Schema(zodSchema)` on the controller class).
+2. The **same** Zod schemas used for domain validation are exported from `application/controllers/<domain>/schemas/` and referenced in `main/functions/<domain>/` when registering routes.
+3. `buildServer` calls `setValidatorCompiler(validatorCompiler)` and `setSerializerCompiler(serializerCompiler)`, uses `.withTypeProvider<ZodTypeProvider>()`, and registers `@fastify/swagger` with `transform: createJsonSchemaTransform({ zodToJsonConfig: { target: 'draft-2020-12' } })` so OpenAPI 3.1 matches Zod output.
 4. `@fastify/swagger` reads all registered route schemas and assembles the OpenAPI spec automatically.
-5. A dedicated script (`pnpm openapi:export`) starts the server and dumps the generated spec to `docs/openapi.json`.
-6. `docs/openapi.json` is committed to the repo and serves as the **source of truth** for Kubb code generation.
+5. A dedicated script (`pnpm openapi:export` in `apps/backend`) builds the app and dumps the generated spec to `docs/openapi.json`.
+6. `docs/openapi.json` is committed to the repo and serves as the **source of truth** for client code generation when configured.
 
 ### Plugin Setup (`main/server.ts`)
 
 ```ts
 import Fastify from 'fastify';
 import fastifySwagger from '@fastify/swagger';
-import fastifySwaggerUi from '@fastify/swagger-ui';
+import {
+  createJsonSchemaTransform,
+  serializerCompiler,
+  type ZodTypeProvider,
+  validatorCompiler,
+} from 'fastify-type-provider-zod';
 
 export async function buildServer() {
-  const app = Fastify({ logger: true });
+  const app = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
+
+  app.setValidatorCompiler(validatorCompiler);
+  app.setSerializerCompiler(serializerCompiler);
 
   await app.register(fastifySwagger, {
     openapi: {
@@ -295,16 +305,12 @@ export async function buildServer() {
         { name: 'Dashboard', description: 'Dashboard metrics' },
       ],
     },
+    transform: createJsonSchemaTransform({
+      zodToJsonConfig: { target: 'draft-2020-12' },
+    }),
   });
 
-  await app.register(fastifySwaggerUi, {
-    routePrefix: '/docs',
-  });
-
-  // Register all routes
-  await app.register(projectsRoutes, { prefix: '/api' });
-  await app.register(queueRoutes, { prefix: '/api' });
-  await app.register(dashboardRoutes, { prefix: '/api' });
+  // Scalar UI, CORS, multipart, routes, etc.
 
   return app;
 }
@@ -341,55 +347,57 @@ Add to `package.json` in `apps/backend`:
 }
 ```
 
-### Route Registration with Fastify Adapter
+### Route registration and typing (`main/functions/`)
 
-Each route in `main/functions/<domain>/` registers the controller with its JSON Schema:
+Route modules take an **`AppInstance`** (`FastifyInstance` + `ZodTypeProvider` — see `main/types/fastify-app.ts`) and pass **Zod** schemas directly to Fastify’s `schema` option:
 
 ```ts
 // main/functions/projects/create-project.ts
 import { CreateProjectController } from '@application/controllers/projects/create-project-controller';
-import { fastifyHttpAdapter } from '@main/adapters/fastify-http-adapter';
+import {
+  createProjectRequestBodySchema,
+  createProjectResponseSchema,
+} from '@application/controllers/projects/schemas/create-project-schema';
+import { errorResponseSchema } from '@application/controllers/shared/error-response-schema';
+import { fastifyMultipartAdapter } from '@main/adapters/fastify-multipart-adapter';
+import type { AppInstance } from '@main/types/fastify-app';
 
-export async function createProjectRoute(app: FastifyInstance) {
+export async function createProjectRoute(app: AppInstance) {
   app.post('/projects', {
     schema: {
       tags: ['Projects'],
       summary: 'Create project with PDF upload',
       consumes: ['multipart/form-data'],
-      body: createProjectJsonSchema, // from Zod schema via zod-to-json-schema
-      response: { 201: projectResponseSchema },
+      body: createProjectRequestBodySchema,
+      response: {
+        201: createProjectResponseSchema,
+        400: errorResponseSchema,
+        500: errorResponseSchema,
+      },
     },
-    handler: fastifyHttpAdapter(CreateProjectController),
+    handler: fastifyMultipartAdapter(CreateProjectController),
   });
 }
 ```
 
-### Zod Schema to JSON Schema (`application/controllers/projects/schemas/`)
+### Zod schemas (`application/controllers/<domain>/schemas/`)
+
+Define **only** Zod schemas (no parallel `*JsonSchema` exports). Example for multipart create (after `@fastify/multipart` with `attachFieldsToBody: 'keyValues'`):
 
 ```ts
 // application/controllers/projects/schemas/create-project-schema.ts
 import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { projectWrappedSchema } from './shared/project-schema';
 
-export const createProjectFormFieldsSchema = z.object({
+export const createProjectRequestBodySchema = z.object({
+  file: z.instanceof(Buffer).describe('Comic book PDF file'),
   title: z.string().min(1),
-  startPage: z.number().int().min(1),
-  endPage: z.number().int().min(1),
+  startPage: z.coerce.number().int().min(1),
+  endPage: z.coerce.number().int().min(1),
   creativeBrief: z.string().optional(),
 });
 
-export const createProjectMultipartBodyJsonSchema = {
-  type: 'object',
-  required: ['file', 'title', 'startPage', 'endPage'],
-  properties: {
-    file: {
-      type: 'string',
-      contentEncoding: 'binary',
-      description: 'Comic book PDF file',
-    },
-    // ...spread formFields properties
-  },
-} as const;
+export const createProjectResponseSchema = projectWrappedSchema;
 ```
 
 ### Kubb Consumes the Exported Spec
@@ -409,13 +417,12 @@ export default defineConfig({
 ### Re-generation Workflow
 
 ```
-1. Developer adds/modifies a Zod schema on a controller
-2. Route is registered in main/functions/ with the updated schema
-3. Run: pnpm --filter backend openapi:export
+1. Developer adds/modifies a Zod schema under application/controllers/.../schemas/
+2. Route is registered in main/functions/ with the updated Zod schema
+3. Run: pnpm --filter @hq-to-video/backend openapi:export
 4. docs/openapi.json is updated
-5. Run: pnpm --filter api-client generate
-6. Typed hooks in packages/api-client are regenerated
-7. Commit both docs/openapi.json and the generated api-client
+5. If a client package uses Kubb or similar: run its generate script
+6. Commit docs/openapi.json (and any regenerated client output)
 ```
 
 ---
@@ -432,8 +439,8 @@ When adding a new domain or endpoint, follow this order:
 6. **Controller** → `application/controllers/<domain>/<action>-controller.ts`
 7. **Infra implementations** → `infra/clients/` (SDK factories), `infra/database/drizzle/repositories/`, `infra/gateways/`, `infra/ai/gateways/`, etc.
 8. **Entry point** → `main/functions/<domain>/<action>.ts` (registers route + schema in Fastify)
-9. **Export spec** → `pnpm --filter backend openapi:export`
-10. **Regenerate client** → `pnpm --filter api-client generate`
+9. **Export spec** → `pnpm --filter @hq-to-video/backend openapi:export`
+10. **Regenerate client** (if applicable) → follow the client package’s generate script
 
 ---
 
@@ -527,15 +534,17 @@ export class CreateWorkoutController extends Controller<
 
 ```ts
 import { CreateWorkoutController } from '@application/controllers/workouts/create-workout-controller';
+import { createWorkoutSchema } from '@application/controllers/workouts/schemas/create-workout-schema';
+import { workoutResponseSchema } from '@application/controllers/workouts/schemas/workout-response-schema';
 import { fastifyHttpAdapter } from '@main/adapters/fastify-http-adapter';
-import { createWorkoutJsonSchema } from '@application/controllers/workouts/schemas/create-workout-schema';
+import type { AppInstance } from '@main/types/fastify-app';
 
-export async function createWorkoutRoute(app: FastifyInstance) {
+export async function createWorkoutRoute(app: AppInstance) {
   app.post('/workouts', {
     schema: {
       tags: ['Workouts'],
       summary: 'Create a new workout',
-      body: createWorkoutJsonSchema,
+      body: createWorkoutSchema,
       response: { 201: workoutResponseSchema },
     },
     handler: fastifyHttpAdapter(CreateWorkoutController),

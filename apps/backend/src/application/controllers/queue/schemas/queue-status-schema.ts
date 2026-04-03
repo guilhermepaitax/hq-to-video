@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 
 /** Queue row can include waiting jobs (not persisted on Project entity). */
 export const queueItemStatusSchema = z.enum([
@@ -10,7 +9,7 @@ export const queueItemStatusSchema = z.enum([
 ]);
 
 export const queueItemSchema = z.object({
-  projectId: z.string().uuid(),
+  projectId: z.string().min(1),
   thumbnailUrl: z.string().nullable(),
   title: z.string(),
   formatSize: z.enum(['VERTICAL', 'HORIZONTAL']).nullable(),
@@ -25,8 +24,4 @@ export const queueStatusSchema = z.object({
   activeTasks: z.number().int().min(0),
   completedToday: z.number().int().min(0),
   items: z.array(queueItemSchema),
-});
-
-export const queueStatusJsonSchema = zodToJsonSchema(queueStatusSchema, {
-  $refStrategy: 'none',
 });

@@ -1,26 +1,26 @@
-import type { FastifyInstance } from 'fastify';
-
 import { GetProjectVideoController } from '@application/controllers/projects/get-project-video-controller';
 import {
-  getProjectVideoParamsJsonSchema,
-  getProjectVideoResponse200BinarySchema,
+  getProjectVideoParamsSchema,
+  getProjectVideoResponse200Schema,
 } from '@application/controllers/projects/schemas/get-project-video-schema';
-import { errorResponseJsonSchema } from '@application/controllers/shared/error-response-schema';
+import { errorResponseSchema } from '@application/controllers/shared/error-response-schema';
 import { fastifyHttpAdapter } from '@main/adapters/fastify-http-adapter';
 
-export async function getProjectVideoRoute(app: FastifyInstance): Promise<void> {
+import type { AppInstance } from '@main/types/fastify-app';
+
+export async function getProjectVideoRoute(app: AppInstance): Promise<void> {
   app.get('/projects/:id/video', {
     schema: {
       tags: ['Projects'],
       summary: 'Stream or download generated project video',
-      params: getProjectVideoParamsJsonSchema,
+      params: getProjectVideoParamsSchema,
       produces: ['video/mp4'],
       response: {
-        200: getProjectVideoResponse200BinarySchema,
-        400: errorResponseJsonSchema,
-        404: errorResponseJsonSchema,
-        500: errorResponseJsonSchema,
-        501: errorResponseJsonSchema,
+        200: getProjectVideoResponse200Schema,
+        400: errorResponseSchema,
+        404: errorResponseSchema,
+        500: errorResponseSchema,
+        501: errorResponseSchema,
       },
     },
     handler: fastifyHttpAdapter(GetProjectVideoController),

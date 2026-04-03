@@ -1,20 +1,22 @@
+import KSUID from 'ksuid';
+
 export class Project {
   readonly id: string;
   readonly title: string;
-  readonly pdfUrl: string;
   readonly startPage: number;
   readonly endPage: number;
   readonly creativeBrief?: string | null;
-  readonly status: Project.Status;
   readonly errorMessage?: string | null;
-  readonly videoUrl?: string | null;
   readonly duration?: number | null;
   readonly formatSize: Project.FormatSize;
   readonly createdAt?: Date;
   readonly updatedAt?: Date;
+  pdfUrl?: string | null;
+  status: Project.Status;
+  videoUrl?: string | null;
 
   constructor(attributes: Project.Attributes) {
-    this.id = attributes.id;
+    this.id = attributes.id ?? KSUID.randomSync().string;
     this.title = attributes.title;
     this.pdfUrl = attributes.pdfUrl;
     this.startPage = attributes.startPage;
@@ -51,9 +53,9 @@ export namespace Project {
   }
 
   export type Attributes = {
-    id: string;
+    id?: string;
     title: string;
-    pdfUrl: string;
+    pdfUrl?: string | null;
     startPage: number;
     endPage: number;
     creativeBrief?: string | null;

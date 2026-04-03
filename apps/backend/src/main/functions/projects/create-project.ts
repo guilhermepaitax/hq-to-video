@@ -1,27 +1,25 @@
-import type { FastifyInstance } from 'fastify';
-
 import { CreateProjectController } from '@application/controllers/projects/create-project-controller';
 import {
-  createProjectMultipartBodyJsonSchema,
-  createProjectResponseJsonSchema,
+  createProjectRequestBodySchema,
+  createProjectResponseSchema,
 } from '@application/controllers/projects/schemas/create-project-schema';
-import { errorResponseJsonSchema } from '@application/controllers/shared/error-response-schema';
-import { fastifyHttpAdapter } from '@main/adapters/fastify-http-adapter';
+import { errorResponseSchema } from '@application/controllers/shared/error-response-schema';
+import { fastifyMultipartAdapter } from '@main/adapters/fastify-multipart-adapter';
+import type { AppInstance } from '@main/types/fastify-app';
 
-export async function createProjectRoute(app: FastifyInstance): Promise<void> {
+export async function createProjectRoute(app: AppInstance): Promise<void> {
   app.post('/projects', {
     schema: {
       tags: ['Projects'],
       summary: 'Create project with PDF upload',
       consumes: ['multipart/form-data'],
-      body: createProjectMultipartBodyJsonSchema,
+      body: createProjectRequestBodySchema,
       response: {
-        201: createProjectResponseJsonSchema,
-        400: errorResponseJsonSchema,
-        500: errorResponseJsonSchema,
-        501: errorResponseJsonSchema,
+        201: createProjectResponseSchema,
+        400: errorResponseSchema,
+        500: errorResponseSchema,
       },
     },
-    handler: fastifyHttpAdapter(CreateProjectController),
+    handler: fastifyMultipartAdapter(CreateProjectController),
   });
 }

@@ -3,6 +3,15 @@ import multipart from '@fastify/multipart';
 import swagger from '@fastify/swagger';
 import ScalarApiReference from '@scalar/fastify-api-reference';
 import Fastify from 'fastify';
+import {
+  createJsonSchemaTransform,
+  hasZodFastifySchemaValidationErrors,
+  isResponseSerializationError,
+  serializerCompiler,
+  type ZodTypeProvider,
+  validatorCompiler,
+} from 'fastify-type-provider-zod';
+import pretty from 'pino-pretty';
 
 import { getDashboardMetricsRoute } from '@main/functions/dashboard/get-metrics';
 import { registerHealthRoutes } from '@main/functions/health/get-health';
@@ -13,14 +22,49 @@ import { listProjectsRoute } from '@main/functions/projects/list-projects';
 import { publishProjectRoute } from '@main/functions/projects/publish-project';
 import { retryProjectRoute } from '@main/functions/projects/retry-project';
 import { getQueueRoute } from '@main/functions/queue/get-queue';
+import type { AppInstance } from '@main/types/fastify-app';
 import { env } from '@shared/config/env';
 
-export async function buildServer() {
-  const app = Fastify({ logger: true });
+const MAX_UPLOAD_BYTES = 150 * 1024 * 1024;
+
+const loggerStream = pretty({
+  colorize: true,
+});
+
+export async function buildServer(): Promise<AppInstance> {
+  const app = Fastify({
+    logger: {
+      level: env.nodeEnv === 'production' ? 'info' : 'debug',
+      stream: loggerStream,
+    },
+  }).withTypeProvider<ZodTypeProvider>();
+
+  app.setValidatorCompiler(validatorCompiler);
+  app.setSerializerCompiler(serializerCompiler);
+
+  app.setErrorHandler((err, request, reply) => {
+    if (hasZodFastifySchemaValidationErrors(err)) {
+      return reply.status(400).send({
+        error: 'BadRequest',
+        message: err.message,
+      });
+    }
+    if (isResponseSerializationError(err)) {
+      request.log.error({ err }, 'response_serialization_failed');
+      return reply.status(500).send({
+        error: 'InternalError',
+        message: 'Internal server error',
+      });
+    }
+    throw err;
+  });
 
   await app.register(cors);
 
-  await app.register(multipart);
+  await app.register(multipart, {
+    limits: { fileSize: MAX_UPLOAD_BYTES },
+    attachFieldsToBody: 'keyValues',
+  });
 
   await app.register(swagger, {
     openapi: {
@@ -56,6 +100,9 @@ export async function buildServer() {
         },
       ],
     },
+    transform: createJsonSchemaTransform({
+      zodToJsonConfig: { target: 'draft-2020-12' },
+    }),
   });
 
   await app.register(ScalarApiReference, {

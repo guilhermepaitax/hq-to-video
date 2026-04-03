@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 
 export const projectStatusSchema = z.enum([
   'PROCESSING',
@@ -18,7 +17,7 @@ export const pipelineStepSchema = z.enum([
 ]);
 
 export const projectSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string().min(1),
   title: z.string(),
   pdfUrl: z.string(),
   startPage: z.number().int(),
@@ -29,10 +28,11 @@ export const projectSchema = z.object({
   videoUrl: z.string().nullable(),
   duration: z.number().int().nullable(),
   formatSize: formatSizeSchema,
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 
-export const projectJsonSchema = zodToJsonSchema(projectSchema, {
-  $refStrategy: 'none',
+/** Single project wrapped for create/get responses. */
+export const projectWrappedSchema = z.object({
+  project: projectSchema,
 });

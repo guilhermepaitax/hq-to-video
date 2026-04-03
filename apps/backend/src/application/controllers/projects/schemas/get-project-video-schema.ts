@@ -1,10 +1,8 @@
-import { projectIdParamsJsonSchema } from './shared/project-id-params-schema';
+import { z } from 'zod';
 
-export const getProjectVideoParamsJsonSchema = projectIdParamsJsonSchema;
+export { projectIdParamsSchema as getProjectVideoParamsSchema } from './shared/project-id-params-schema';
 
-/** Binary video stream (MP4). Documented for OpenAPI; not validated with Zod. */
-export const getProjectVideoResponse200BinarySchema = {
-  type: 'string',
-  format: 'binary',
-  description: 'MP4 video stream',
-} as const;
+/** MP4 stream; OpenAPI/binary documentation. */
+export const getProjectVideoResponse200Schema = z
+  .instanceof(Buffer)
+  .describe('MP4 video stream');
